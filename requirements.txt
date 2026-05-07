@@ -1,0 +1,6 @@
+groq
+mistralai
+python-dotenv
+yt-dlp
+spotdl
+tqdm

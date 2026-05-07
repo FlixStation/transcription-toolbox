@@ -1,0 +1,41 @@
+# =============================================================================
+# TRANSCRIPTION TOOLBOX — .gitignore
+# =============================================================================
+
+# --- SENSITIVE AUTHENTICATION (NEVER COMMIT THESE) ---
+.env
+youtube_cookies.txt
+cookies.txt
+*.session
+*.netrc
+
+# --- GENERATED ARTIFACTS (can be large: 100MB+ audio files) ---
+artifacts/
+
+# --- PYTHON ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.Python
+
+# --- MACOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- IDE ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- LOGS ---
+*.log
