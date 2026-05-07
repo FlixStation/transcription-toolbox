@@ -62,7 +62,7 @@ URL (YouTube / Spotify)
 ### 1. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 > See [docs/SETUP.md](docs/SETUP.md) for system-level dependencies (ffmpeg, yt-dlp).

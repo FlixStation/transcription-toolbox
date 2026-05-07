@@ -57,7 +57,7 @@ brew install yt-dlp
 From the project root:
 
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ---
