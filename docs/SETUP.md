@@ -67,14 +67,20 @@ source .venv/bin/activate  # On Unix or macOS
 .venv\Scripts\activate     # On Windows
 ```
 
-Install dependencies using uv (either from requirements.txt or pyproject.toml):
+Install dependencies using uv:
 
 ```bash
-# Option 1: Install from requirements.txt
-uv pip install -r requirements.txt
+# Full installation workflow
+uv venv
+source .venv/bin/activate  # On Unix or macOS
+# or
+.venv\Scripts\activate     # On Windows
 
-# Option 2: Install from pyproject.toml (recommended)
+# Install from pyproject.toml (recommended)
 uv pip install -e .
+
+# Install additional dependencies from requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ---
@@ -98,6 +104,23 @@ Then edit `.env` with your actual API keys:
 
 ---
 
-## 6. YouTube Authentication (Optional but Recommended)
+## 6. Running the Pipeline
+
+### Basic Usage
+
+```bash
+python3 src/main.py "https://www.youtube.com/watch?v=YOUR_VIDEO_ID" \
+    --topic "Your podcast topic" \
+    --lang "es"
+```
+
+#### Optional Flags
+
+- `--parallel`: Enable parallel processing of chunks for faster transcription and polishing (default: False)
+- `--no-keep-final`: Skip keeping intermediate files after successful run (default: False)
+
+The final polished transcript will be saved to `artifacts/cleaned_transcript.md`.
+
+## 7. YouTube Authentication (Optional but Recommended)
 
 See the [Cookie Authentication Guide](./COOKIES_GUIDE.md) to set up `youtube_cookies.txt` for downloading age-restricted content or avoiding bot detection.
