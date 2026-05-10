@@ -53,14 +53,15 @@ def main():
 
     # Step 4: Polish
     raw_text = os.path.join(artifacts_dir, "raw_transcript.txt")
-    run_step([sys.executable, "src/polisher.py", raw_text, "--topic", args.topic, "--lang", args.lang])
+    base_name = os.path.splitext(os.path.basename(current_audio))[0]
+    run_step([sys.executable, "src/polisher.py", raw_text, "--topic", args.topic, "--lang", args.lang, "--output-name", base_name])
 
     # Step 5: Cleanup
-    run_step([sys.executable, "src/cleaner.py", "--artifacts-dir", artifacts_dir])
+    run_step([sys.executable, "src/cleaner.py", "--artifacts-dir", artifacts_dir, "--base-name", base_name])
 
     print("\n" + "="*50)
     print("PIPELINE SUCCESSFUL")
-    print(f"Final Transcript: {os.path.join(artifacts_dir, 'cleaned_transcript.md')}")
+    print(f"Final Transcript: {os.path.join(artifacts_dir, f'{base_name}.md')}")
     print("="*50 + "\n")
 
 if __name__ == "__main__":

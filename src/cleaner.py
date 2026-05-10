@@ -5,6 +5,7 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 5: Cleaner")
     parser.add_argument("--artifacts-dir", default="artifacts")
+    parser.add_argument("--base-name", help="Base name for the output file")
     parser.add_argument("--keep-final", action="store_true", default=True)
     args = parser.parse_args()
 
@@ -16,6 +17,8 @@ def main():
 
     # Files we definitely want to keep (the final result)
     protected = ["cleaned_transcript.md", "raw_transcript.txt"]
+    if args.base_name:
+        protected.append(f"{args.base_name}.md")
 
     for item in os.listdir(args.artifacts_dir):
         item_path = os.path.join(args.artifacts_dir, item)

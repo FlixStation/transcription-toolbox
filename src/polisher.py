@@ -71,6 +71,7 @@ def main():
     parser.add_argument("input", help="Path to raw_transcript.txt")
     parser.add_argument("--topic", required=True)
     parser.add_argument("--lang", default="Spanish")
+    parser.add_argument("--output-name", help="Base name for the output file")
     args = parser.parse_args()
 
     if not GROQ_API_KEY:
@@ -97,7 +98,8 @@ def main():
         polished_text.append(cleaned)
         time.sleep(10) # Safety delay to respect the 30 RPM limit of Llama 3.3
 
-    output_path = os.path.join(artifacts_dir, "cleaned_transcript.md")
+    output_filename = f"{args.output_name}.md" if args.output_name else "cleaned_transcript.md"
+    output_path = os.path.join(artifacts_dir, output_filename)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(polished_text))
     
