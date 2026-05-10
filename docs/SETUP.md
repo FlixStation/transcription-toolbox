@@ -44,7 +44,8 @@ ffmpeg -version
 ## 3. yt-dlp (Required for YouTube)
 
 ```bash
-pip install yt-dlp
+# Install with uv (recommended)
+uv pip install yt-dlp
 
 # Or install the standalone binary on macOS
 brew install yt-dlp
@@ -52,12 +53,28 @@ brew install yt-dlp
 
 ---
 
-## 4. Python Dependencies
+## 4. Python Virtual Environment & Dependencies
 
-From the project root:
+Create and activate a virtual environment using uv:
 
 ```bash
+# Create a virtual environment
+uv venv
+
+# Activate the virtual environment
+source .venv/bin/activate  # On Unix or macOS
+# or
+.venv\Scripts\activate     # On Windows
+```
+
+Install dependencies using uv (either from requirements.txt or pyproject.toml):
+
+```bash
+# Option 1: Install from requirements.txt
 uv pip install -r requirements.txt
+
+# Option 2: Install from pyproject.toml (recommended)
+uv pip install -e .
 ```
 
 ---

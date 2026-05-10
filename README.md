@@ -59,10 +59,22 @@ URL (YouTube / Spotify)
 
 ## 🚀 Quickstart
 
-### 1. Install dependencies
+### 1. Set up virtual environment and install dependencies
 
 ```bash
+# Create and activate a virtual environment
+uv venv
+source .venv/bin/activate  # On Unix or macOS
+# or
+.venv\Scripts\activate     # On Windows
+
+# Install dependencies (choose one option):
+
+# Option 1: Install from requirements.txt
 uv pip install -r requirements.txt
+
+# Option 2: Install from pyproject.toml (recommended)
+uv pip install -e .
 ```
 
 > See [docs/SETUP.md](docs/SETUP.md) for system-level dependencies (ffmpeg, yt-dlp).
