@@ -68,7 +68,7 @@ def polish_chunk(client, chunk, topic, language, chunk_id, artifacts_dir, retrie
 
 def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 4: Polisher (Quality-First)")
-    parser.add_argument("input", help="Path to raw_transcript.txt")
+    parser.add_argument("input", help="Path to the raw transcript file")
     parser.add_argument("--topic", required=True)
     parser.add_argument("--lang", default="Spanish")
     parser.add_argument("--output-name", help="Base name for the output file")

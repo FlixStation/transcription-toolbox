@@ -49,11 +49,11 @@ def main():
     transcribe_input = chunk_dirs[0] if chunk_dirs else current_audio
 
     # Step 3: Transcribe
-    run_step([sys.executable, "src/transcriber.py", transcribe_input, "--lang", args.lang])
+    base_name = os.path.splitext(os.path.basename(current_audio))[0]
+    run_step([sys.executable, "src/transcriber.py", transcribe_input, "--lang", args.lang, "--output-name", base_name])
 
     # Step 4: Polish
-    raw_text = os.path.join(artifacts_dir, "raw_transcript.txt")
-    base_name = os.path.splitext(os.path.basename(current_audio))[0]
+    raw_text = os.path.join(artifacts_dir, f"{base_name}.txt")
     run_step([sys.executable, "src/polisher.py", raw_text, "--topic", args.topic, "--lang", args.lang, "--output-name", base_name])
 
     # Step 5: Cleanup

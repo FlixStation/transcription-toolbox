@@ -24,9 +24,15 @@ SECONDARY_MODEL = "whisper-large-v3-turbo"
 # Use the verified working model ID
 MISTRAL_MODEL = "voxtral-mini-latest"
 
-def transcribe_chunk(groq_client, mistral_client, chunk_path, language, max_retries=5):
+def transcribe_chunk(groq_client, mistral_client, chunk_path, language, base_name=None, max_retries=5):
     """Transcribes a single chunk with a triple-layer fallback system."""
-    transcript_path = chunk_path.replace(".mp3", ".txt")
+    # Create transcript path with video identifier if provided
+    if base_name:
+        chunk_basename = os.path.basename(chunk_path).replace(".mp3", "")
+        transcript_path = os.path.join(os.path.dirname(chunk_path), f"{base_name}_{chunk_basename}.txt")
+    else:
+        transcript_path = chunk_path.replace(".mp3", ".txt")
+        
     if os.path.exists(transcript_path):
         print(f"Transcript already exists for {os.path.basename(chunk_path)}. Skipping.")
         with open(transcript_path, "r", encoding="utf-8") as f:
@@ -96,6 +102,7 @@ def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 3: Transcriber (Triple Fallback)")
     parser.add_argument("input", help="Path to audio file or directory of chunks")
     parser.add_argument("--lang", default="es", help="Language code")
+    parser.add_argument("--output-name", help="Base name for output files")
     args = parser.parse_args()
 
     if not GROQ_API_KEY:
@@ -115,15 +122,22 @@ def main():
         full_text = []
         for i, chunk in enumerate(chunks):
             print(f"Processing {i+1}/{len(chunks)}: {os.path.basename(chunk)}")
-            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang)
+            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang, args.output_name)
             full_text.append(text)
             time.sleep(2)
         result = " ".join(full_text)
     else:
-        result = transcribe_chunk(groq_client, mistral_client, args.input, args.lang)
+        result = transcribe_chunk(groq_client, mistral_client, args.input, args.lang, args.output_name)
 
-    output_path = os.path.join("artifacts", "raw_transcript.txt")
+    # Use provided output name or default
+    base_name = args.output_name if args.output_name else "raw_transcript"
+    output_path = os.path.join("artifacts", f"{base_name}.txt")
+    # Also create a _raw version for compatibility
+    raw_output_path = os.path.join("artifacts", f"{base_name}_raw.txt")
     with open(output_path, "w", encoding="utf-8") as f:
+        f.write(result)
+    # Copy to _raw version as well
+    with open(raw_output_path, "w", encoding="utf-8") as f:
         f.write(result)
     
     print(f"SUCCESS: Raw transcript saved to {output_path}")

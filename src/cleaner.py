@@ -15,18 +15,16 @@ def main():
         print("Nothing to clean.")
         return
 
-    # Files we definitely want to keep (the final result)
-    protected = ["cleaned_transcript.md", "raw_transcript.txt"]
-    if args.base_name:
-        protected.append(f"{args.base_name}.md")
-
+    # Delete all temporary files and folders
     for item in os.listdir(args.artifacts_dir):
         item_path = os.path.join(args.artifacts_dir, item)
-        
-        if args.keep_final and item in protected:
-            print(f"Keeping final result: {item}")
+
+        # Preserve all .md files as they are final transcriptions
+        if item.endswith(".md"):
+            print(f"Keeping final transcription: {item}")
             continue
-            
+
+        # Delete all temporary files and folders
         try:
             if os.path.isdir(item_path):
                 shutil.rmtree(item_path)
