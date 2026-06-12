@@ -11,6 +11,7 @@ cookies.txt
 
 # --- GENERATED ARTIFACTS (can be large: 100MB+ audio files) ---
 artifacts/
+raw_material/
 
 # --- PYTHON ---
 __pycache__/
@@ -36,6 +37,9 @@ env/
 .idea/
 *.sublime-project
 *.sublime-workspace
+.kilo
 
 # --- LOGS ---
 *.log
+
+

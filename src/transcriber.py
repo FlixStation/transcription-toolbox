@@ -100,9 +100,9 @@ def transcribe_chunk(groq_client, mistral_client, chunk_path, language, base_nam
 
 def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 3: Transcriber (Triple Fallback)")
-    parser.add_argument("input", help="Path to audio file or directory of chunks")
+    parser.add_argument("-i", help="Path to audio file or directory of chunks")
     parser.add_argument("--lang", default="es", help="Language code")
-    parser.add_argument("--output-name", help="Base name for output files")
+    parser.add_argument("-o", help="Base name for output files")
     args = parser.parse_args()
 
     if not GROQ_API_KEY:
@@ -116,29 +116,30 @@ def main():
         mistral_client = Mistral(api_key=MISTRAL_API_KEY)
         print("Mistral fallback enabled.")
 
-    if os.path.isdir(args.input):
-        chunks = sorted(glob.glob(os.path.join(args.input, "chunk_*.mp3")))
+    if os.path.isdir(args.i):
+        chunks = sorted(glob.glob(os.path.join(args.i, "chunk_*.mp3")))
         print(f"--- Step 3: Transcribing {len(chunks)} chunks ---")
         full_text = []
         for i, chunk in enumerate(chunks):
             print(f"Processing {i+1}/{len(chunks)}: {os.path.basename(chunk)}")
-            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang, args.output_name)
+            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang, args.o)
             full_text.append(text)
             time.sleep(2)
         result = " ".join(full_text)
     else:
-        result = transcribe_chunk(groq_client, mistral_client, args.input, args.lang, args.output_name)
+        result = transcribe_chunk(groq_client, mistral_client, args.i, args.lang, args.o)
 
     # Use provided output name or default
-    base_name = args.output_name if args.output_name else "raw_transcript"
+    base_name = args.o if args.o else "raw_transcript"
     output_path = os.path.join("artifacts", f"{base_name}.txt")
-    # Also create a _raw version for compatibility
-    raw_output_path = os.path.join("artifacts", f"{base_name}_raw.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(result)
-    # Copy to _raw version as well
-    with open(raw_output_path, "w", encoding="utf-8") as f:
-        f.write(result)
+
+    # Also create a _raw version for compatibility
+    # raw_output_path = os.path.join("artifacts", f"{base_name}_raw.txt")
+    # # Copy to _raw version as well
+    # with open(raw_output_path, "w", encoding="utf-8") as f:
+    #     f.write(result)
     
     print(f"SUCCESS: Raw transcript saved to {output_path}")
 
