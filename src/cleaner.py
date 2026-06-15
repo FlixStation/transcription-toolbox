@@ -5,26 +5,35 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 5: Cleaner")
     parser.add_argument("--artifacts-dir", default="artifacts")
-    parser.add_argument("--base-name", help="Base name for the output file")
-    parser.add_argument("--keep-final", action="store_true", default=True)
+    parser.add_argument("--base-name", help="Base name used for this video's files")
     args = parser.parse_args()
 
     print("--- Step 5: Cleaning up artifacts ---")
-    
+
     if not os.path.exists(args.artifacts_dir):
         print("Nothing to clean.")
         return
 
-    # Delete all temporary files and folders
+    # Files to always preserve: polished transcript (.md) and raw transcript (.txt)
+    keep_files = set()
+    if args.base_name:
+        keep_files.add(f"{args.base_name}.md")
+        keep_files.add(f"{args.base_name}.txt")
+
     for item in os.listdir(args.artifacts_dir):
         item_path = os.path.join(args.artifacts_dir, item)
 
-        # Preserve all .md files as they are final transcriptions
+        # Always preserve .md files (polished transcripts)
         if item.endswith(".md"):
-            print(f"Keeping final transcription: {item}")
+            print(f"Keeping polished transcript: {item}")
             continue
 
-        # Delete all temporary files and folders
+        # Preserve the raw .txt for the current video (not intermediate chunk txts)
+        if item in keep_files:
+            print(f"Keeping raw transcript: {item}")
+            continue
+
+        # Delete everything else: audio, chunk dirs, polished_chunk_*.txt, etc.
         try:
             if os.path.isdir(item_path):
                 shutil.rmtree(item_path)

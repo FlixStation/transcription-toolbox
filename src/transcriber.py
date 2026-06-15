@@ -102,7 +102,8 @@ def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 3: Transcriber (Triple Fallback)")
     parser.add_argument("-i", help="Path to audio file or directory of chunks")
     parser.add_argument("--lang", default="es", help="Language code")
-    parser.add_argument("-o", help="Base name for output files")
+    parser.add_argument("-o", "--output-name", help="Base name for output files")
+    parser.add_argument("--artifacts-dir", default="artifacts", help="Directory to write output .txt")
     args = parser.parse_args()
 
     if not GROQ_API_KEY:
@@ -122,16 +123,17 @@ def main():
         full_text = []
         for i, chunk in enumerate(chunks):
             print(f"Processing {i+1}/{len(chunks)}: {os.path.basename(chunk)}")
-            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang, args.o)
+            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang, args.output_name)
             full_text.append(text)
             time.sleep(2)
         result = " ".join(full_text)
     else:
-        result = transcribe_chunk(groq_client, mistral_client, args.i, args.lang, args.o)
+        result = transcribe_chunk(groq_client, mistral_client, args.i, args.lang, args.output_name)
 
     # Use provided output name or default
-    base_name = args.o if args.o else "raw_transcript"
-    output_path = os.path.join("artifacts", f"{base_name}.txt")
+    base_name = args.output_name if args.output_name else "raw_transcript"
+    os.makedirs(args.artifacts_dir, exist_ok=True)
+    output_path = os.path.join(args.artifacts_dir, f"{base_name}.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(result)
 
