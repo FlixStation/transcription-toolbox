@@ -59,10 +59,18 @@ URL (YouTube / Spotify)
 
 ## 🚀 Quickstart
 
-### 1. Install dependencies
+### 1. Set up virtual environment and install dependencies
 
 ```bash
-pip install -r requirements.txt
+# Create and activate a virtual environment
+uv venv
+source .venv/bin/activate  # On Unix or macOS
+# or
+.venv\Scripts\activate     # On Windows
+
+# Install dependencies
+uv pip install -e .
+uv pip install -r requirements.txt
 ```
 
 > See [docs/SETUP.md](docs/SETUP.md) for system-level dependencies (ffmpeg, yt-dlp).
@@ -88,6 +96,11 @@ python3 src/main.py "https://www.youtube.com/watch?v=YOUR_VIDEO_ID" \
     --topic "Your podcast topic" \
     --lang "es"
 ```
+
+#### Optional Flags
+
+- `--parallel`: Enable parallel processing of chunks for faster transcription and polishing (default: False)
+- `--no-keep-final`: Skip keeping intermediate files after successful run (default: False)
 
 The final polished transcript will be saved to `artifacts/cleaned_transcript.md`.
 

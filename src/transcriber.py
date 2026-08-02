@@ -24,9 +24,15 @@ SECONDARY_MODEL = "whisper-large-v3-turbo"
 # Use the verified working model ID
 MISTRAL_MODEL = "voxtral-mini-latest"
 
-def transcribe_chunk(groq_client, mistral_client, chunk_path, language, max_retries=5):
+def transcribe_chunk(groq_client, mistral_client, chunk_path, language, base_name=None, max_retries=5):
     """Transcribes a single chunk with a triple-layer fallback system."""
-    transcript_path = chunk_path.replace(".mp3", ".txt")
+    # Create transcript path with video identifier if provided
+    if base_name:
+        chunk_basename = os.path.basename(chunk_path).replace(".mp3", "")
+        transcript_path = os.path.join(os.path.dirname(chunk_path), f"{base_name}_{chunk_basename}.txt")
+    else:
+        transcript_path = chunk_path.replace(".mp3", ".txt")
+        
     if os.path.exists(transcript_path):
         print(f"Transcript already exists for {os.path.basename(chunk_path)}. Skipping.")
         with open(transcript_path, "r", encoding="utf-8") as f:
@@ -94,8 +100,10 @@ def transcribe_chunk(groq_client, mistral_client, chunk_path, language, max_retr
 
 def main():
     parser = argparse.ArgumentParser(description="Toolbox Step 3: Transcriber (Triple Fallback)")
-    parser.add_argument("input", help="Path to audio file or directory of chunks")
+    parser.add_argument("-i", help="Path to audio file or directory of chunks")
     parser.add_argument("--lang", default="es", help="Language code")
+    parser.add_argument("-o", "--output-name", help="Base name for output files")
+    parser.add_argument("--artifacts-dir", default="artifacts", help="Directory to write output .txt")
     args = parser.parse_args()
 
     if not GROQ_API_KEY:
@@ -109,22 +117,31 @@ def main():
         mistral_client = Mistral(api_key=MISTRAL_API_KEY)
         print("Mistral fallback enabled.")
 
-    if os.path.isdir(args.input):
-        chunks = sorted(glob.glob(os.path.join(args.input, "chunk_*.mp3")))
+    if os.path.isdir(args.i):
+        chunks = sorted(glob.glob(os.path.join(args.i, "chunk_*.mp3")))
         print(f"--- Step 3: Transcribing {len(chunks)} chunks ---")
         full_text = []
         for i, chunk in enumerate(chunks):
             print(f"Processing {i+1}/{len(chunks)}: {os.path.basename(chunk)}")
-            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang)
+            text = transcribe_chunk(groq_client, mistral_client, chunk, args.lang, args.output_name)
             full_text.append(text)
             time.sleep(2)
         result = " ".join(full_text)
     else:
-        result = transcribe_chunk(groq_client, mistral_client, args.input, args.lang)
+        result = transcribe_chunk(groq_client, mistral_client, args.i, args.lang, args.output_name)
 
-    output_path = os.path.join("artifacts", "raw_transcript.txt")
+    # Use provided output name or default
+    base_name = args.output_name if args.output_name else "raw_transcript"
+    os.makedirs(args.artifacts_dir, exist_ok=True)
+    output_path = os.path.join(args.artifacts_dir, f"{base_name}.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(result)
+
+    # Also create a _raw version for compatibility
+    # raw_output_path = os.path.join("artifacts", f"{base_name}_raw.txt")
+    # # Copy to _raw version as well
+    # with open(raw_output_path, "w", encoding="utf-8") as f:
+    #     f.write(result)
     
     print(f"SUCCESS: Raw transcript saved to {output_path}")
 
