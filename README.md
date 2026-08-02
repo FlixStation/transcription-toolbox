@@ -1,6 +1,9 @@
 # Transcription Toolbox 🎙️
 
-A **modular, fault-tolerant transcription pipeline** for podcasts and long-form audio. Downloads, transcribes, and polishes content from YouTube and Spotify — even on free API tiers — using a triple-layer fallback system.
+A **modular, fault-tolerant transcription pipeline** for podcasts and long-form audio — even on free API tiers — using a triple-layer fallback system.
+
+- **Full pipeline** (`main.py`): downloads, transcribes, and polishes content from **YouTube or Spotify URLs** only.
+- **Individual steps**: each stage (`processor.py`, `transcriber.py`, `polisher.py`, `cleaner.py`) can be run directly on **any local audio or video file** — no YouTube/Spotify required. See [Running Individual Steps](#-running-individual-steps).
 
 ---
 
@@ -10,7 +13,7 @@ A **modular, fault-tolerant transcription pipeline** for podcasts and long-form 
 - **Chunk Persistence**: Every chunk is saved immediately. If the process crashes or hits a rate limit, it resumes exactly where it left off.
 - **Triple-Layer Transcription Fallback**: Automatically switches providers if a quota is exhausted.
 - **Quality-First Polishing**: Uses large LLMs (Llama 3.3 70B) to fix transcription errors, named entities, and formatting.
-- **Automatic Cleanup**: Deletes all intermediate audio files after a successful run, keeping only the final transcript.
+- **Optional Cleanup**: Intermediate files are kept by default so you can inspect or resume; pass `--keep-files False` to delete *this run's* audio and chunks after a successful run. Cleanup is scoped to the current run only — other videos' files in `artifacts/` are never touched.
 
 ---
 
@@ -48,7 +51,7 @@ URL (YouTube / Spotify)
          │
          ▼
 ┌─────────────────┐
-│  5. Cleaner     │  Deletes temp audio, keeps final .md
+│  5. Cleaner     │  --keep-files (default: True); set to False to delete temp audio
 └────────┬────────┘
          │
          ▼
@@ -99,8 +102,7 @@ python3 src/main.py "https://www.youtube.com/watch?v=YOUR_VIDEO_ID" \
 
 #### Optional Flags
 
-- `--parallel`: Enable parallel processing of chunks for faster transcription and polishing (default: False)
-- `--no-keep-final`: Skip keeping intermediate files after successful run (default: False)
+- `--keep-files`: Keep intermediate files after successful run. Pass `True` or `False` (default: `True`)
 
 The final polished transcript will be saved to `artifacts/cleaned_transcript.md`.
 
@@ -108,23 +110,29 @@ The final polished transcript will be saved to `artifacts/cleaned_transcript.md`
 
 ## 🔧 Running Individual Steps
 
-Each tool in `src/` can be run independently:
+Each tool in `src/` can be run independently. **Step 1 (Downloader) only supports YouTube/Spotify URLs** — but Steps 2–5 work on any local audio or video file, so you can skip the downloader entirely if you already have a file (a local recording, a podcast RSS download, audio from another source, etc.):
 
 ```bash
-# Step 1: Download only
+# Step 1: Download only (YouTube/Spotify URL required)
 python3 src/downloader.py "https://youtu.be/..."
 
-# Step 2: Split audio into chunks
+# --- OR, if you already have a local file, start here instead ---
+
+# Step 2: Split audio into chunks (accepts any local .mp3/.wav or video file;
+# .webm/.mp4/.mkv are auto-converted to audio first)
 python3 src/processor.py artifacts/my_audio.mp3
 
-# Step 3: Transcribe a directory of chunks
-python3 src/transcriber.py artifacts/chunks_my_audio/ --lang es
+# Step 3: Transcribe a directory of chunks (or a single audio file)
+python3 src/transcriber.py -i artifacts/chunks_my_audio/ --lang es
 
 # Step 4: Polish a raw transcript
 python3 src/polisher.py artifacts/raw_transcript.txt --topic "Roman history"
 
-# Step 5: Clean up intermediate artifacts
-python3 src/cleaner.py
+# Step 5: Clean up this run's intermediate artifacts only (final .md/.txt are never touched)
+python3 src/cleaner.py --keep-files False \
+    --base-name my_audio \
+    --audio-file artifacts/my_audio.mp3 \
+    --chunks-dir artifacts/chunks_my_audio
 ```
 
 ---

@@ -84,6 +84,7 @@ def main():
 
     if path:
         print(f"SUCCESS: Downloaded to {path}")
+        print(f"AUDIO_PATH::{path}")
     else:
         print("FAILED: Download failed.")
 
