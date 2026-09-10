@@ -8,7 +8,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Quality-First Model Strategy
-PRIMARY_POLISH_MODEL = "llama-3.3-70b-versatile"
+PRIMARY_POLISH_MODEL = "openai/gpt-oss-120b"
 FALLBACK_POLISH_MODEL = "groq/compound"
 # groq/compound rejects requests as large as the 4,000-word primary chunks
 # (413 Request Entity Too Large), so it gets smaller sub-chunks.
